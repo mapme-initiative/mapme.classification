@@ -1,0 +1,33 @@
+Package: mapme.classification
+Title: Spatial Cross Validation and area of applicability (AOA) calculation for classification and regression
+Version: 0.0.0.9000
+Authors@R: c(person("MAPME-Initiative", role = c("cre", "cph"), email = "contact@mapme-initiative.org"),
+             person(given = "Darius", family = "Görgen", role = "aut", email = "darius.goergen@maptailor.net"))
+Description: This packages offers some functionality for reoccuring tasks in
+  spatial-temporal model building and prediction. The full cycle from predictor extraction,
+  train-test split, cross-validation as well as post-processing and area estimation adjustment
+  is supported. It relies heavliy on functionality provided by the terra, caret and CAST packages,
+  thus supporting a very high number of different machine learning algorithms. 
+  The package is part of the MAPME toolset at <https://github.com/mapme-initiative/> 
+  and was developed by MapTailor Geospatial Consulting <https://maptailor.net/>.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.5)
+Imports: CAST,
+         caret,
+         dplyr,
+         magrittr,
+         sf,
+         terra,
+         stringr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Suggests: 
+    rmarkdown,
+    knitr,
+    randomForest,
+    ggplot2,
+    tidyr,
+    DiagrammeR
+VignetteBuilder: knitr

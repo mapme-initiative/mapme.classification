@@ -1,0 +1,66 @@
+---
+title: "Terminology"
+date: "Last modified: `r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Terminology}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: mapme.classification.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
+)
+```
+
+## Terminology
+
+Here we present a quick introduction and the most important terminology used throughout
+this tutorial:
+
+-  LULC: Land Use / Land Cover maps the observed usage of cover of the earth's surface
+as seen in an satellite imagery. Most of the time a classification algorithm is used
+to differentiate between different classes of land use / land cover.
+-  Supervised classification: This is the process to let a given model algorithm
+learn how to recognize certain classes based on available reference data. This reference
+data is usually split into training and validation data in order to assess the capability
+of an algorithm to correctly classify the land cover class at unseen locations.
+-  Training data: this data contains labeled samples that can be collected through 
+field surveys or manually digitized on-screen based on satellite or aerial images,
+previous land cover maps. Ideally, the collection of training data should follow
+a pre-determined spatial sampling design helping to cover the variability of 
+spectral (or other) characteristics in each class – for more information on this topic, 
+please refer to the [MAPME Open Source Guide](https://github.com/mapme-initiative/mapme.osg). 
+Another important aspect is the ability of training data to correctly capture the prevalence 
+(i.e., the proportional coverage) of each class in the target area. If some class(es) 
+are disproportionately represented in the training data that will potentially cause 
+problems for classification algorithms.
+-  Test data: Usually we consider test data as a specific proportion of the
+available reference data. In contrast to training data, test data is not used
+during model building, but it is used only once at the very end of a classification
+process to assess the accuracy of the classifier. Both, training and test data
+can be split so that the class prevalence is roughly equal in both sets.
+-  Forward-Feature-Selection: This process selects the best predictors for the 
+classification task by iterativley selecting the predictors yielding the best separability
+between classes. It can be based on spatio-temporal folds to make sure that a model
+can classify well at different locations in space and/or in time
+-  Area of applicability: the area of applicability is a fairly new concept in spatial
+modeling. Based on an index of dissimilarity between training data and new data points
+the area of applicability indicates where the trained classifier delivers trustful
+predictions and where the results should not be trusted. It is calculated based
+on the CAST package by @meyer_predicting_2021.
+-  Confusion matrix: At several points the package returns confusion matrices in order
+to assess the accuracy of classification algorithms. These matrices compare the
+reference class of a given location with its predicted class by the classifier, thus
+delivering overall and class-specific accuracy assessments.
+-  Post-processing: As a post-processing step, sometimes it is a good idea to apply
+a spatial filter to derive smoother spatial predictions of the land cover / land use.
+The package supplies a procedure to remove isolated pixels (“salt-and-pepper”) and
+to improve the map quality.
+
+## References

@@ -1,0 +1,110 @@
+---
+title: "Introduction"
+date: "Last modified: `r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: mapme.classification.bib
+
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
+)
+```
+
+## Objectives 
+
+`{mapme.classification}` is meant for users with at least some basic GIS and Remote 
+Sensing background. It supports the creation of spatial information (maps) of 
+land use / land cover (LULC), such as forest or cropland, by classifying optical 
+Earth Observation (EO) satellite imagery and to quantify the area of different land uses / land covers. Users will need at least basic knowledge 
+regarding the concepts behind operating, (pre-) processing and analyzing this EO data. 
+The accuracy assessment and estimation of LULC area is based on state-of-the-art 
+recommendations by @yelena_finegold__antonia_ortmann_map_2016 and @olofsson_making_2013. 
+
+## Supervised image classification 
+
+This is the process of converting EO data into thematic information by applying 
+a supervised image classification procedure, e.g. a machine learning algorithm. 
+Pixel based image analysis is based on spectral (or other) information from image 
+pixels, such as satellite images. Applying this technique requires that the user 
+provides a set of reference data, such as in-situ measured samples of LULC categories. 
+This reference data is used to calibrate a classifier algorithm and to validate 
+the LULC maps, respectively.
+
+
+## mapme.classification package
+
+`{mapme.classification}` combines satellite EO data pre-processing, data analysis and
+post-processing into a single workflow, making it easier for the users to run all 
+required steps in sequence. To this end, the full cycle of supervised image 
+classification is implemented, from data extraction, train-test splitting, 
+classifier model building by means of spatial (and temporal) cross-validation, to 
+the calculation of the area of applicability, post-processing and area estimation. 
+At the time being, the `{mapme.classification}` preprocesses and analyses top-of-canopy 
+reflectance  (Level-2A) Sentinel-2 images from the European EO program [Copernicus](https://www.copernicus.eu/en), which are freely available from [AWS](https://registry.opendata.aws/sentinel-2/). The 
+image preprocessing is based on the package 
+<code> {[mapme.vegetation](https://github.com/mapme-initiative/mapme.vegetation)}</code>.  
+`{mapme.classification}` relies heavily on the 
+<code>{[terra](https://cran.r-project.org/web/packages/terra/index.html)} </code>, 
+<code> {[caret](https://cran.r-project.org/web/packages/caret/index.html)} </code> 
+and <code>{[CAST](https://cran.r-project.org/web/packages/CAST/index.html)}</code> packages. 
+
+
+## Functionalities
+
+Currently, the package offers several functionalities, which should ideally be 
+used in a consecutive manner in order to realize the full supervised image classification
+workflow:
+
+-  Pre-process Sentinel-2 satellite images (via <code> {[mapme.vegetation](https://github.com/mapme-initiative/mapme.vegetation)}</code>.)
+-  Calibrate a machine learning algorithm (supported by [caret](https://topepo.github.io/caret/available-models.html))
+-  Perform pixel based supervised classification or regression
+-  Apply a post-processing procedure to remove isolated pixels (“salt-and-pepper”) and to improve the map quality
+-  Evaluate classifier performance (accuracy assessment) for single- or multi-class problems
+-  Calculate the LULC area by applying a procedure that corrects bias in area estimates using error matrices (please note that this procedure requires that the validation data fulfills certain requirements, such as probabilistic samples. Read more about this important issue in the [MAPME Open Source Guide](https://github.com/mapme-initiative/mapme.osg)).
+
+
+## Inputs, Outputs
+
+
+-  a GeoTIFF image stack most commonly from the {[mapme.vegetation](https://github.com/mapme-initiative/mapme.vegetation)}</code>
+package with a number of different predictors containing - for example - Sentinel-2
+image bands and various vegetation indices (VI) read into R as a spatRaster object
+from the [terra](https://cran.r-project.org/web/packages/terra/index.html) package
+-  reference data, typically a ESRI shapefile, containing samples for training
+a classifier algorithm, and an attribute column with unique factors for different LULC
+categories (e.g. a field called "class" which contains unique numbers for LULC
+cateigures, such as 1 = "Cropland", 2 = "Forest", etc). The object should be read as
+an sf object via the <code>{[sf](https://cran.r-project.org/web/packages/sf/index.html)}</code> package.
+
+
+## Limitations
+
+
+-  `{mapme-classification}` uses optical imagery (Sentinel-2). This might limit the 
+availability of satellite images in areas with excessive cloud cover. 
+
+-  Very high resolution (VHR) images, if available, can also be classified with `{mapme.classification}`, yet, usually the application of object-based image analysis is recommended which such VHR data which is not supported.
+
+- the number of classification and regression models supported by the caret package
+is substantial. However, there might be algorithms that user's would like to use that
+are not included in `{caret}` and thus cannot be supported by `{mapme.classification}`
+
+-  while most calculations can be expected to be memory safe due to the usage of the 
+memory-aware <code>{[terra](https://cran.r-project.org/web/packages/terra/index.html)} </code> 
+package, for very large areas of interest data might not fit into RAM. To avoid very
+long computation times and potential errors due to memory limits consider splitting 
+up the spatial prediction process into smaller chunks.
+
+We are planning to add new features and to extend the functionality of `{mapme.classification}`, 
+and to address these limitations best possible.
+
+## References
