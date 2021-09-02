@@ -1,0 +1,51 @@
+---
+title: "Installation"
+date: "Last modified: `r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Installation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
+)
+```
+
+
+This sections describes how to install the `{mapme.classification}` package. 
+Because the package handles some spatial data, we assume that you have
+a working installation of [GDAL](https://gdal.org/index.html) and [PROJ](https://proj.org/) 
+on your system. Please refer to the respective installation guides to learn about how to install these programms
+on you OS.
+
+Windows users additionally will have to install the [rtools](https://cran.r-project.org/bin/windows/Rtools) 
+software for a successful installation of the `{mapme.vegetation}` package from source. 
+
+The installation of the `{mapme.classification}` package is then achieved trough the following
+function call:
+
+
+```{r installation, eval = F}
+remotes::install_github("mapme-initiative/mapme.classification")
+```
+
+The installation process will install potential missing R dependencies.
+After the successfull installation, you are ready to use the package's 
+functionality. Simply load the package for your R session with the library
+call:
+
+```{r setup, val = F}
+library(mapme.classification)
+```
+
+Note, that in order to use specific model algorithms via the `{caret}` package,
+you might need to install certain system requirements manually. If that is the 
+case you will be informed which packages to install when calling the modeling function.
+Refer to the column `Library` to learn the name of the R package for a certain
+algorithm under this [link](https://topepo.github.io/caret/available-models.html).

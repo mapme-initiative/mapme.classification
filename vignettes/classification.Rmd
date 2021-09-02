@@ -1,0 +1,346 @@
+---
+title: "Calibration of classifier algorithm"
+date: "Last modified: `r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Calibration of classifier algorithm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: mapme.classification.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
+)
+```
+
+##  Preprocessing of input data 
+
+First let's load some packages that we are going to need
+for the process.
+
+```{r setup, message=F, warning=F}
+library(mapme.classification)
+library(tidyr)
+library(ggplot2)
+library(stringr)
+library(terra)
+library(sf)
+library(dplyr)
+library(magrittr)
+```
+
+Here, we assume that a 10-daily NDVI time series spanning the year 2020 processed by
+the `{mapme.vegetation}` package is already available. We are using this time-series 
+as a multi-temporal predictor set but the functionality also applies to other 
+possible predictor sets. Note, that in order to save us some trouble with the 
+`predict()` function when applying the model we change the names of the layers to 
+something creating less confusion (for example in our tests, predictors including 
+an hyphen tend to cause some trouble when actually using the model for predictions).
+
+```{r predictors }
+# read data
+files = list.files(system.file("extdata/indices", package = "mapme.classification"), full.names = T)
+predictors = rast(files)
+predictors =  (predictors - 1427) / 10000 # apply scale and offset (only for package data)
+names(predictors) = str_replace_all(names(predictors), "-", "\\.") 
+plot(predictors)
+```
+
+In addition to the predictors we will read a polygon object indicating the location
+of known land uses. We will use this objects to get some samples where we know
+the class label that can be used during model fit. Note, that these polygons have
+been digitized on screen.
+
+```{r sfobject}
+aoi = st_read(system.file("extdata", "reference.gpkg", package = "mapme.classification"), quiet = T)
+aoi$id = 1:nrow(aoi) # give it a unique ID, important for extraction
+aoi = st_buffer(aoi, 100)
+aoi
+```
+
+We see that we have a total number of 58 polygons associated with different classes
+or labels found in the column `CNAME`. We can investigate the class distribution with
+the `table()` function. In general, the samples are  evenly distributed among the
+classes with agriculture showing the lowest object number with 9 and Burnt vegetation
+the highest number with 14. In total, we have 5 different land use classes.
+
+```{r classdist}
+table(aoi$CNAME)
+```
+
+In the next step we are simulating a spatial stratification of the sampling locations.
+We will split up the entire AOI into 4 quadrants of equal size and include the information
+in which quadrant the quadrant of a sample lies in the data.frame. This way, later
+we can split our data set into training and testing equally against our 4 spatial
+units as well as telling the model to create space-folds to be used during cross-validation.
+We will take a closer look at what both of these aspects mean later on in this vignette.
+
+```{r quads, warning=F}
+h = ceiling(nrow(predictors) / 2)
+v = ceiling(ncol(predictors) / 2)
+agg = aggregate(predictors[[1]], fact = c(h,v))
+agg[] = 1:ncell(agg)
+quadrants = as.polygons(agg)
+quadrants = st_as_sf(quadrants)
+aoi$quad = as.character(paste("Qd", st_within(st_centroid(aoi ), quadrants), sep = "-"))
+aoi
+```
+
+From the output above, we see that each object now is associated with the information
+in which quadrant it lies. For now, we will use this information to create a training 
+and test split. Here, for us it is important that during testing we test against
+objects within all locations and that we not exclude a certain location from the
+test set, e.g. through completly random sampling. Additionally, we would also wish
+to retain a similar class distribution between the training and test set so that we
+do not add any biases by differing distributions. Here we can use the `train_split()`
+function from the `{mapme.classification}` package. It works by handing over 
+an `sf` object together with an column uniquely identifying each object and the 
+response variable. As a default, the function will try to equally distribute
+the response variable among the training and test data set. If the response
+is numerical, it can be split into categories using base R's `cut()` function via
+the `...` argument. Additionally, a grouping variable can be included to stratify
+the split by this variable. Parameter `p` indicates the percentage that should
+go into the training set. To ensure reproducibility of the split, make sure 
+to explicitly set a seed.
+
+```{r trainsplit}
+(aoi2 = train_split(
+  aoi,
+  idcol = "id",
+  response = "CNAME",
+  group = "quad",
+  p = 0.5,
+  seed = 32,
+  verbose = T))
+```
+
+In the verbose mode the function messages the distribution if classes for both
+the training and test set. We see that the classes are not distributed identically
+but very similar. The resulting `sf` object now shows an additional column called
+`split` which specifies if a specific observation belongs to the train or test 
+sample.
+
+With this information at hand we can now begin to extract our predictors. In the
+present case we are extracting all pixels within a polygon and associated it with
+the respective class label. We can use the `extract_traindata()` function for this.
+
+```{r extract}
+traindata = extract_traindata(
+  aoi2,
+  predictors,
+  verbose = T)
+traindata$CNAME = as.factor(traindata$CNAME)
+head(traindata)
+```
+
+As you can see, the attributes from the `aoi2` object are retained. However, we 
+now longer have an `sf` object but rather a simple data.frame. We also see 
+a number of new columns coressponding to the names of our predictor data set. We 
+also see that the value in the column `id` is repeated several times. This means
+that for the first object we actually extracted three different pixels that lie
+within that polygon. This is of course create because we get a higher number
+of observations (`r nrow(traindata)` in total), but because these observations
+actually come from the same object they are not really what statisticians call
+independent. This is one reason why we conducted the training split before
+extracting so that we can make sure that no pixels from the same object are included
+in both, training and test. For now, let's try to visualize the extracted data
+and see if we are able to find some differences among the land use classes.
+
+```{r viz}
+traindata %>%
+  as_tibble %>%
+  pivot_longer(6:42, names_to = "predictor", values_to = "value") %>%
+  mutate(time = as.Date(str_sub(predictor,6,15), format = "%Y.%m.%d")) %>%
+  ggplot() +
+  geom_smooth(aes(x=time,y=value,color=CNAME), se = F) +
+  theme_classic() +
+  labs(x="Time", y="NDVI",color="Class") +
+  ggtitle("Smoothed NDVI profiles per class in the training split") +
+  theme(legend.position = "bottom")
+```
+
+From the above plot we an see the different NDVI curves over the year averaged by
+land cover class. While agriculture and burnt vegetation show a very similar
+NDVI curve, other classes are clearly distinct. It is this information included
+in our training sample that we wish the RandomForest model to learn in order 
+to differentiate between land uses. 
+
+## Calibration of classifier algorithm
+
+`{mapme.classification}` uses the pre-processed training data to map LULC. 
+In the current example, the Random Forest (RF) algorithm is used for this purpose. 
+RF are an ensemble learning method for classification, regression and other tasks, 
+that operate by constructing multiple decision trees during the training stage 
+and outputting the class that is the mode of the classes (classification) or the 
+average prediction (regression) of the individual trees.
+
+### Fitting a classification model
+
+We have different options on how we would like the training to happen. First, we will have
+to decide on a model to be used. Note, that in principal all models supported by
+the `{caret}` package can be specified via the `method` argument. We will use 
+the RF model based on the `{randomForest}` package. It is also a good advise
+to explicitly state the column names in the traindata object that should be considered
+as predictors. We also need to tell the model which of the variables is the response 
+variable. It will be automatically deducted based on the datatype whether to 
+conduct a regression or a classification so make sure to properly set the datatype
+(e.g. character or factor for classification). We also have the possibility
+to include a variable indicating the spatial and the temporal strata
+a given observations belongs to. Here we will only specify a spatial variable (the
+quadrant a observation belongs to) but we could have also taken measurements 
+of a variable at different points in time. During model fit we would like to base
+our cross-validation on these variables so that we are actually able to measure
+how well a model performs on a new space-time location. Note, that including a 
+temporal variable in the cross-validation is usually a less common practice during
+classification but it can be frequently seen with regression problems. 
+The parameter `k` controls how many folds the cross validation is based on.
+Please check `caret::train()` for additional arguments that can be supplied (such
+as the metric to optimize for). The `train_model()` function additionally allows us
+to conduct a forward-future selection based on `CAST::ffs`. In this mode, during
+the first round each single predictor will be tested against all other predictors
+and the best combination will be selected. This is then repeated with all
+remaining variables until no improvement in the optimization metric is found.
+This process can be quite computationally expensive because many models might be fit.
+For this reason we will train the current model without FFS.
+
+```{r training}
+output = train_model(
+  traindata = traindata[traindata$split == "train", ],
+  predictors = names(predictors),
+  response = "CNAME",
+  spacevar = "quad",
+  k = 5,
+  ffs = F,
+  method = "rf",
+  metric = "Accuracy",
+  maximize = TRUE,
+  seed = 32,
+  verbose = T,
+  ntree=500)
+output$model
+```
+
+The function returns a list object with the model in the first position, a confusion
+matrix in the second positions and the observed and predicted vectors following.
+Considering the model output we see above we see that we have an overall accuracy
+of only about 41%. What is this estimate based on? During model fit, observations 
+from certain quadtrants have been held out of training and the model is then
+evaluated based on this data. Unfortunatley, we only have a very small amount of
+training data. Thus in order to get a more reliable estimate of the model fit we
+should evaluate the model on the hold-out-validation set.
+
+
+### Assessing the accuracy on a held-out dataset
+
+In order to derive a robust indicator of the model's performance we will use the 
+test set. We can use the `eval_test()` function. It expects a trained model as input, 
+the data for which to predict the outcome as well as the column name where the 
+observed outcome is stored.
+
+```{r eval}
+evaluated = eval_test(
+  output$model,
+  traindata[traindata$split == "test", ],
+  response = "CNAME")
+
+evaluated$cnf
+```
+
+Considering the held-out test set with the present model we achieve an OA of
+`r round(evaluated$cnf$overall[1], 2) * 100`% and a Kappa score of `r round(evaluated$cnf$overall[2],2)`. 
+There is some severe confusion between agriculture
+and burnt vegetation reducing the sensitivity of the agricultural class to 75% as
+well as between water and sparse vegetation. The other classes seem to be better separable.
+In a next step we might be interested in using the model to create a spatial
+prediction that we can use for further analyses (e.g. areal statistics) or 
+visualization. 
+
+### Spatial prediction and area of applicability
+
+To conduct a spatial prediction we can use the `spatial_predict()` function that 
+allows us to get a raster including the spatial prediction. Additionally,
+we can use it to calculate the area of applicability (AOA) of our prediction model.
+The concept of AOA was introduced by Meyer & Pebesma (2020) and describes the boundaries
+where a classifier or regression model delivers useful outcomes. These boundaries
+are set by the available training dataset because we can not expect a model 
+to perform equally well at locations where the predictors deviate substantially
+from the distribution within the training set. The `{CAST}` package is used to calculate
+the AOA as well as the diversity index (DI) that is the basis for the AOA calculation.
+Feel free to read more in the CAST documentation. Since both the prediction and
+AOA calculation can be computationally intensive for large rasters you can specify
+the number of cores to be used for parallel computation.
+
+```{r pred, eval = F}
+(pred_raster = spatial_predict(
+  predictors = predictors,
+  model = output$model,
+  mode = "response",
+  AOA = T,
+  ncores = 1))
+```
+
+```{r pred-in, echo=FALSE}
+(pred_raster = rast(system.file("extdata", "pred-raster.tif", package = "mapme.classification")))
+names(pred_raster) = c("class", "DI", "AOA")
+```
+
+
+### Bias adjusted area estimates
+
+`mapme.classification` uses confusion matrices and it implements current standards 
+for accuracy assessments and LULC area estimation. More concisely, it uses error 
+matrices to correct bias in the LULC area estimates, was proposed by @yelena_finegold__antonia_ortmann_map_2016 
+and @olofsson_making_2013. We can use the `area_estimation()` function to derive an 
+adjusted area estimation taking into account the distribution of the training classes. 
+This method delivers adjusted area estimates and also a confidence range for these 
+estimates for each class.
+
+```{r area}
+(areast = area_estimation(pred_raster$class, cnf = evaluated$cnf))
+```
+
+We see that we have very low Producer's (PA) and User's accuracy (UA) for 
+agriculture resulting in a wide range of the adjusted area. For other classes
+the estimated range is much more narrow.
+
+
+### Post-Processing
+
+A common post-processing step especially for visualization can be to filter 
+the classified raster to remove very small patches of one class within another.
+For this we can use the `postclass()` function that allows us to apply a zonal statistic
+in a certain neighborhood size of a pixel. In this example we will return the most
+frequent class in a 5x5 neighborhood.
+
+```{r postlcass}
+(postclass_raster = postclass(
+  pred_raster$class,
+  w = 3,
+  fun = "modal"
+))
+```
+
+
+### Visualization
+
+Let's finally visualize our results. We will plot both the original
+raster and the post-classification raster. Also we will mark pixels that
+are considered as outside of the area of applicability explicitly. Finally,
+we will give a more intuitive color code for each class.
+
+```{r map}
+pred_raster$class = mask(pred_raster$class, pred_raster$AOA, maskvalues =0, updatevalue= 5)
+levels(pred_raster$class) = c("Agriculture", "Burnt Vegetation", "Shrub and tree cover", "Sparse Vegetation", "Water", "not-applicable")
+postclass_raster =  mask(postclass_raster, pred_raster$AOA, maskvalues =0, updatevalue= 5)
+levels(postclass_raster) = c("Agriculture", "Burnt Vegetation", "Shrub and tree cover", "Sparse Vegetation", "Water", "not-applicable")
+vis = c(pred_raster$class, postclass_raster)
+names(vis) = c("Original", "Postclass")
+plot(vis, col = c("orange", "grey", "green", "darkgreen", "blue", "black"), legend = "topright", plg = list(ncol=3))
+```
+
+## References
