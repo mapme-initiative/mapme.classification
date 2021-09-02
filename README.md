@@ -2,7 +2,6 @@
 
 <!-- badges: start -->
 ![check](https://github.com/mapme-initiative/mapme.classification/workflows/R-CMD-check/badge.svg)
-[![Coverage Status](https://img.shields.io/codecov/c/github/mapme-initiative/mapme.classification/master.svg)](https://codecov.io/github/mapme-initiative/mapme.classification?branch=master)
 <!-- badges: end -->
 
 ## About MAPME

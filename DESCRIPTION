@@ -29,5 +29,6 @@ Suggests:
     randomForest,
     ggplot2,
     tidyr,
-    DiagrammeR
+    DiagrammeR,
+    pkgdown
 VignetteBuilder: knitr
