@@ -87,7 +87,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction</h1>
             
-            <h4 class="date">Last modified: 2021-09-02</h4>
+            <h4 class="date">Last modified: 2021-09-09</h4>
       
       
       <div class="hidden name"><code>introduction.Rmd</code></div>
@@ -109,14 +109,14 @@
 <div id="mapme-classification-package" class="section level2">
 <h2 class="hasAnchor">
 <a href="#mapme-classification-package" class="anchor"></a>mapme.classification package</h2>
-<p><code>{mapme.classification}</code> combines satellite EO data pre-processing, data analysis and post-processing into a single workflow, making it easier for the users to run all required steps in sequence. To this end, the full cycle of supervised image classification is implemented, from data extraction, train-test splitting, classifier model building by means of spatial (and temporal) cross-validation, to the calculation of the area of applicability, post-processing and area estimation. At the time being, the <code>{mapme.classification}</code> preprocesses and analyses top-of-canopy reflectance (Level-2A) Sentinel-2 images from the European EO program <a href="https://www.copernicus.eu/en">Copernicus</a>, which are freely available from <a href="https://registry.opendata.aws/sentinel-2/">AWS</a>. The image preprocessing is based on the package <code> {<a href="https://github.com/mapme-initiative/mapme.vegetation">mapme.vegetation</a>}</code>.<br><code>{mapme.classification}</code> relies heavily on the <code>{<a href="https://cran.r-project.org/web/packages/terra/index.html">terra</a>} </code>, <code> {<a href="https://cran.r-project.org/web/packages/caret/index.html">caret</a>} </code> and <code>{<a href="https://cran.r-project.org/web/packages/CAST/index.html">CAST</a>}</code> packages.</p>
+<p><code>{mapme.classification}</code> combines satellite EO data pre-processing, data analysis and post-processing into a single workflow, making it easier for the users to run all required steps in sequence. To this end, the full cycle of supervised image classification is implemented, from data extraction, train-test splitting, classifier model building by means of spatial (and temporal) cross-validation, to the calculation of the area of applicability, post-processing and area estimation. At the time being, the <code>{mapme.classification}</code> preprocesses and analyses top-of-canopy reflectance (Level-2A) Sentinel-2 images from the European EO program <a href="https://www.copernicus.eu/en">Copernicus</a>, which are freely available from <a href="https://registry.opendata.aws/sentinel-2/">AWS</a>. The image preprocessing is based on the package <code> {<a href="https://mapme-initiative.github.io/mapme.vegetation/">mapme.vegetation</a>}</code>.<br><code>{mapme.classification}</code> relies heavily on the <code>{<a href="https://cran.r-project.org/web/packages/terra/index.html">terra</a>} </code>, <code> {<a href="https://cran.r-project.org/web/packages/caret/index.html">caret</a>} </code> and <code>{<a href="https://cran.r-project.org/web/packages/CAST/index.html">CAST</a>}</code> packages.</p>
 </div>
 <div id="functionalities" class="section level2">
 <h2 class="hasAnchor">
 <a href="#functionalities" class="anchor"></a>Functionalities</h2>
 <p>Currently, the package offers several functionalities, which should ideally be used in a consecutive manner in order to realize the full supervised image classification workflow:</p>
 <ul>
-<li>Pre-process Sentinel-2 satellite images (via <code> {<a href="https://github.com/mapme-initiative/mapme.vegetation">mapme.vegetation</a>}</code>.)</li>
+<li>Pre-process Sentinel-2 satellite images (via <code> {<a href="https://mapme-initiative.github.io/mapme.vegetation/">mapme.vegetation</a>}</code>.)</li>
 <li>Calibrate a machine learning algorithm (supported by <a href="https://topepo.github.io/caret/available-models.html">caret</a>)</li>
 <li>Perform pixel based supervised classification or regression</li>
 <li>Apply a post-processing procedure to remove isolated pixels (“salt-and-pepper”) and to improve the map quality</li>

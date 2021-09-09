@@ -82,14 +82,14 @@
 
       
 
-      </header><script src="workflow_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="workflow_files/htmlwidgets-1.5.3/htmlwidgets.js"></script><script src="workflow_files/d3-3.3.8/d3.min.js"></script><script src="workflow_files/dagre-0.4.0/dagre-d3.min.js"></script><link href="workflow_files/mermaid-0.3.0/dist/mermaid.css" rel="stylesheet">
+      </header><script src="workflow_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="workflow_files/htmlwidgets-1.5.4/htmlwidgets.js"></script><script src="workflow_files/d3-3.3.8/d3.min.js"></script><script src="workflow_files/dagre-0.4.0/dagre-d3.min.js"></script><link href="workflow_files/mermaid-0.3.0/dist/mermaid.css" rel="stylesheet">
 <script src="workflow_files/mermaid-0.3.0/dist/mermaid.slim.min.js"></script><link href="workflow_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
 <script src="workflow_files/chromatography-0.1/chromatography.js"></script><script src="workflow_files/DiagrammeR-binding-1.0.6.1/DiagrammeR.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Workflow</h1>
             
-            <h4 class="date">Last modified: 2021-09-02</h4>
+            <h4 class="date">Last modified: 2021-09-09</h4>
       
       
       <div class="hidden name"><code>workflow.Rmd</code></div>
@@ -103,7 +103,7 @@
 <a href="#workflow" class="anchor"></a>Workflow</h2>
 <p>In the following, the most important steps of the image classification workflow of <code>{mapme.classification}</code> are described; the figure guides the reader through these descriptions. The goal of this tutorial is to classify Sentinel-2 images into different LULC categories in an agricultural landscape in Ethiopia, by using the <code>{mapme.classification}</code> package. Creating such LULC maps in different years would allow – for example – to back trace changes in the cropped area, which might be an intended outcome of a project being evaluated. Several algorithms, such as the Random Forest algorithm, can be calibrated based on user provided input data and reference data. The calibrated model is applied to classify the input data into user defined categories of land use / land cover (LULC). The assesses the accuracy of the LULC maps and estimates the area of each LULC category. Optimally, this LULC area estimation can be bias corrected by considering the class prevalence in the training data. The single processing steps are as follows:</p>
 <ul>
-<li>pre-process Sentinel-2 images via the <code> {<a href="https://github.com/mapme-initiative/mapme.vegetation">mapme.vegetation</a>}</code> package</li>
+<li>pre-process Sentinel-2 images via the <code> {[mapme.vegetation](<a href="https://mapme-initiative.github.io/mapme.vegetation/" class="uri">https://mapme-initiative.github.io/mapme.vegetation/</a>}</code> package</li>
 <li>extract reference data for known locations</li>
 <li>split reference data into training and validation set</li>
 <li>training a model possibly based on spatio-temporal folds and a Forward-Feature-Selection</li>
@@ -112,8 +112,8 @@
 <li>return evaluation metrics of the final model based on test data</li>
 <li>calculate LULC area and optionally correct for biases by considering the class prevalence in the training data</li>
 </ul>
-<div id="htmlwidget-a75423c4647c7b90475a" style="width:480px;height:480px;" class="DiagrammeR html-widget"></div>
-<script type="application/json" data-for="htmlwidget-a75423c4647c7b90475a">{"x":{"diagram":"\n  graph TB\n\n    classDef default fill:#c2dddd,stroke-width:2px,stroke:#034858;\n \n    A(Extract reference data)\n    B(Train/Test split)\n    C(Calibrate a model)\n    D(Spatial prediction)\n    E(Post-processing)\n    F(Accuracy assessment)\n    G(Bias adjustment)\n    A-->B\n    B-->C\n    C-->D\n    D-->E\n    D-->F\n    D-->G\n\n"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-73a7e649b6add37614a4" style="width:480px;height:480px;" class="DiagrammeR html-widget"></div>
+<script type="application/json" data-for="htmlwidget-73a7e649b6add37614a4">{"x":{"diagram":"\n  graph TB\n\n    classDef default fill:#c2dddd,stroke-width:2px,stroke:#034858;\n \n    A(Extract reference data)\n    B(Train/Test split)\n    C(Calibrate a model)\n    D(Spatial prediction)\n    E(Post-processing)\n    F(Accuracy assessment)\n    G(Bias adjustment)\n    A-->B\n    B-->C\n    C-->D\n    D-->E\n    D-->F\n    D-->G\n\n"},"evals":[],"jsHooks":[]}</script>
 </div>
   </div>
 
