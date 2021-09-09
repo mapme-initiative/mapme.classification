@@ -22,7 +22,7 @@ repositories encompass three main functionalities:
 
 -  vegetation productivity change and trend assessments, e.g. to map landscape degradation or rehabilitation via the <code> {[mapme.vegetation](https://mapme-initiative.github.io/mapme.vegetation/)}</code> package
 
-- Assessing agricultural productivity through the FAO WaPOR plattform via the <code> {[mapme.agriculture](https://github.com/mapme-initiative/mapme.agriculture)}</code> package
+- Assessing agricultural productivity through the FAO WaPOR plattform via the <code> {[mapme.agriculture](https://mapme-initiative.github.io/mapme.agriculture/)}</code> package
 
 ## About this package
 
