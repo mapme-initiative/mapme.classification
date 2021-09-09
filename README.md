@@ -18,9 +18,9 @@ project area – these methods can – for example – be used to assess outcome
 or to monitoring the progress in your projects. At the time being, the MAPME 
 repositories encompass three main functionalities:	
 
--  Analyze, maps and quantify land use / land cover (LULC), such as change in forest cover or cropland (for forest cover via the <code> {[mapme.forest](https://github.com/mapme-initiative/mapme.forest)}</code> package)
+-  Analyze, maps and quantify land use / land cover (LULC), such as change in forest cover or cropland (for forest cover via the <code> {[mapme.forest](https://mapme-initiative.github.io/mapme.forest/)}</code> package)
 
--  vegetation productivity change and trend assessments, e.g. to map landscape degradation or rehabilitation via the <code> {[mapme.vegetation](https://github.com/mapme-initiative/mapme.vegetation)}</code> package
+-  vegetation productivity change and trend assessments, e.g. to map landscape degradation or rehabilitation via the <code> {[mapme.vegetation](https://mapme-initiative.github.io/mapme.vegetation/)}</code> package
 
 - Assessing agricultural productivity through the FAO WaPOR plattform via the <code> {[mapme.agriculture](https://github.com/mapme-initiative/mapme.agriculture)}</code> package
 

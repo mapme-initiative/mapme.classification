@@ -51,7 +51,7 @@ the calculation of the area of applicability, post-processing and area estimatio
 At the time being, the `{mapme.classification}` preprocesses and analyses top-of-canopy 
 reflectance  (Level-2A) Sentinel-2 images from the European EO program [Copernicus](https://www.copernicus.eu/en), which are freely available from [AWS](https://registry.opendata.aws/sentinel-2/). The 
 image preprocessing is based on the package 
-<code> {[mapme.vegetation](https://github.com/mapme-initiative/mapme.vegetation)}</code>.  
+<code> {[mapme.vegetation](https://mapme-initiative.github.io/mapme.vegetation/)}</code>.  
 `{mapme.classification}` relies heavily on the 
 <code>{[terra](https://cran.r-project.org/web/packages/terra/index.html)} </code>, 
 <code> {[caret](https://cran.r-project.org/web/packages/caret/index.html)} </code> 
@@ -64,7 +64,7 @@ Currently, the package offers several functionalities, which should ideally be
 used in a consecutive manner in order to realize the full supervised image classification
 workflow:
 
--  Pre-process Sentinel-2 satellite images (via <code> {[mapme.vegetation](https://github.com/mapme-initiative/mapme.vegetation)}</code>.)
+-  Pre-process Sentinel-2 satellite images (via <code> {[mapme.vegetation](https://mapme-initiative.github.io/mapme.vegetation/)}</code>.)
 -  Calibrate a machine learning algorithm (supported by [caret](https://topepo.github.io/caret/available-models.html))
 -  Perform pixel based supervised classification or regression
 -  Apply a post-processing procedure to remove isolated pixels (“salt-and-pepper”) and to improve the map quality

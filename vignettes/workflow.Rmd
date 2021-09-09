@@ -30,7 +30,7 @@ an intended outcome of a project being evaluated. Several algorithms, such as
 the Random Forest algorithm, can be calibrated based on user provided input data 
 and reference data. The calibrated model is applied to classify the input data into user defined categories of land use / land cover (LULC). The assesses the accuracy of the LULC maps and estimates the area of each LULC category. Optimally, this LULC area estimation can be bias corrected by considering the class prevalence in the training data. The single processing steps are as follows:
 
--  pre-process Sentinel-2 images via the <code> {[mapme.vegetation](https://github.com/mapme-initiative/mapme.vegetation)}</code>
+-  pre-process Sentinel-2 images via the <code> {[mapme.vegetation](https://mapme-initiative.github.io/mapme.vegetation/}</code>
 package
 -  extract reference data for known locations
 -  split reference data into training and validation set
