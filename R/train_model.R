@@ -84,6 +84,7 @@ train_model <- function(
     if(verbose) message("Spatiotemporal CV was selected. Setting trControl to CV with space-time index for folds.")
     trControl$method = "cv"
     trControl$index = indices$index
+    trControl$indexOut = indices$indexOut
   }
 
   if(any(str_detect(predictors, "-"))){
